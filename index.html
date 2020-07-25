@@ -289,6 +289,132 @@
       });
 
       map.add(openspaces, 0); // Añadimos la capa al mapa
+
+
+      // Vamos a crear popups para mostrar info de los caminos al clicar sobre el icono de camino
+      var popupTrailheads = { // Esta será la información que mostrará
+        title: "{TRL_NAME}",
+        content: 
+          "<b>City:</b> {CITY_JUR}<br><b>Cross Street:</b> {X_STREET}<br><b>Parking:</b> {PARKING}<br><b>Elevation:</b> {ELEV_FT} ft"
+      };
+
+      var trailheads = new FeatureLayer({
+        url:
+          "https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Trailheads_Styled/FeatureServer/0",
+        outFields: ["TRL_NAME", "CITY_JUR", "X_STREET", "PARKING", "ELEV_FT"],
+        popupTemplate: popupTrailheads
+      });
+
+      map.add(trailheads);
+
+      // Ahora vamos a añadir pop-ups a los propios caminos
+      var popupTrails = {
+        title: "Trail Information",
+
+        // Esto nos muestra la información escrita
+        // content: function () {
+        //   return "This is {TRL_NAME} with {ELEV_GAIN} ft of climbing.";
+        // }
+
+        // Mientras que esta grafica nos muestra el desnivel en forma de gráfica
+        // content: [
+        //   {
+        //     type: "media",
+        //     mediaInfos: [
+        //       {
+        //         type: "column-chart",
+        //         caption: "",
+        //         value: {
+        //           fields: ["ELEV_MIN", "ELEV_MAX"],
+        //           normalizeField: null,
+        //           tooltipField: "Min and max elevation values"
+        //         }
+        //       }
+        //     ]
+        //   }
+        // ]
+
+        // De esta forma podemos definir un función, una cuenta y mostrarla en el popup
+        expressionInfos: [
+          {
+            name: "elevation-ratio",
+            title: "Elevation change",
+            expression: "Round((($feature.ELEV_MAX - $feature.ELEV_MIN)/($feature.LENGTH_MI)/5280)*100,2)"
+          }
+        ],
+        content:
+          "The {TRL_NAME} trail average slope per mile is: {expression/elevation-ratio}% over a total of {LENGTH_MI} miles."
+      };
+
+      var trails = new FeatureLayer({
+        url:
+          "https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Trails_Styled/FeatureServer/0",
+        outFields: ["TRL_NAME", "ELEV_GAIN"],
+        popupTemplate: popupTrails
+      });
+
+      map.add(trails, 0); // Este número hace que el borde que sale alrededor del camino al seleccionarlo no tape los iconos
+
+
+      // POPUPs para los parques naturales
+      var popupOpenspaces = {
+        title: "{PARK_NAME}",
+        content: [
+          {
+            type: "fields",
+            fieldInfos: [
+              {
+                fieldName: "AGNCY_NAME",
+                label: "Agency",
+                isEditable: true,
+                tooltip: "",
+                visible: true,
+                format: null,
+                stringFieldOption: "text-box"
+              },
+              {
+                fieldName: "TYPE",
+                label: "Type",
+                isEditable: true,
+                tooltip: "",
+                visible: true,
+                format: null,
+                stringFieldOption: "text-box"
+              },
+              {
+                fieldName: "ACCESS_TYP",
+                label: "Access",
+                isEditable: true,
+                tooltip: "",
+                visible: true,
+                format: null,
+                stringFieldOption: "text-box"
+              },
+              {
+                fieldName: "GIS_ACRES",
+                label: "Acres",
+                isEditable: true,
+                tooltip: "",
+                visible: true,
+                format: {
+                  places: 2,
+                  digitSeparator: true
+                },
+                stringFieldOption: "text-box"
+              }
+            ]
+          }
+        ]
+      };
+
+      var openspaces = new FeatureLayer({
+        url:
+          "https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Parks_and_Open_Space_Styled/FeatureServer/0",
+        outFields: ["TYPE", "PARK_NAME", "AGNCY_NAME", "ACCESS_TYP", "GIS_ACRES"],
+        popupTemplate: popupOpenspaces
+      });
+
+      map.add(openspaces, 0);
     });
   </script>
 </head>
