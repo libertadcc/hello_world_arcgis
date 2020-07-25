@@ -135,7 +135,8 @@
       view.when(function () {
         view.whenLayerView(featureLayer).then(function (featureLayerView) {
           view.on("pointer-move", function (event) {
-            view.hitTest(event).then(function (response) {
+            view.hitTest(event).then(function (response) { //  hitTest returns features for all visible layers, 
+              // so it is necessary to filter the results for the layer of interest. 
               // Only return features for the feature layer
               var feature = response.results.filter(function (result) {
                 return result.graphic.layer === featureLayer;
