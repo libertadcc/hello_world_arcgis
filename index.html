@@ -1,0 +1,298 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>ArcGIS API for JavaScript Hello World App</title>
+  <style>
+    html, body, #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+
+  <link rel="stylesheet" href="https://js.arcgis.com/4.16/esri/css/main.css">
+  <script src="https://js.arcgis.com/4.16/"></script>
+
+  <script>
+    // MAPA 2D
+    // require([
+    //   "esri/Map",
+    //   "esri/views/MapView" // 'librerias'
+    // ], function(Map, MapView) {
+
+    //   var map = new Map({
+    //     basemap: "streets-navigation-vector" // Topográfico: "topo-vector"
+    //   });
+
+    //   var view = new MapView({
+    //     container: "viewDiv",
+    //     map: map,
+    //     center: [-118.71511,34.09042],
+    //     zoom: 11
+    //   });
+
+    // });
+
+    // MAPA 3D
+    // require(["esri/Map", "esri/views/SceneView"], function (Map, SceneView) {
+    //   var map = new Map({
+    //     basemap: "topo-vector",
+    //     ground: "world-elevation" // show elevation
+    //   });
+
+    //   var view = new SceneView({
+    //     container: "viewDiv",
+    //     map: map,
+    //     camera: {
+    //       position: {
+    //         // observation point
+    //         x: -118.808,
+    //         y: 33.961,
+    //         z: 25000 // altitude in meters
+    //       },
+    //       tilt: 65 // perspective in degrees
+    //     }
+    //   });
+    // });
+
+
+    // MAPA CON APARTADO PARA CAMBIAR EL TIPO DE MAPA
+    // require(["esri/Map",
+    //   "esri/views/MapView",
+    //   "esri/widgets/BasemapToggle",
+    //   "esri/widgets/BasemapGallery"
+    // ], function(Map, MapView, BasemapToggle, BasemapGallery) {
+    //   var basemapToggle = new BasemapToggle({
+    //     view: view,
+    //     nextBasemap: "satellite"
+    //   });
+
+    //   var map = new Map({
+    //     basemap: "streets-navigation-vector" // Topográfico: "topo-vector" // En la galería, este es el mapa inicial sobre el que van a salir el resto
+    //   });
+
+    //   var view = new MapView({
+    //     container: "viewDiv",
+    //     map: map,
+    //     center: [-118.71511,34.09042],
+    //     zoom: 11
+    //   });
+      
+    //   var basemapGallery = new BasemapGallery({
+    //     view: view,
+    //     source: {
+    //       portal: {
+    //         url: "http://www.arcgis.com",
+    //         useVectorBasemaps: true, // Load vector tile basemap group
+    //       },
+    //     } 
+    //   });
+
+    //   view.ui.add(basemapGallery, "top-right"); // Add to the view del resto de mapas
+      
+    // });
+
+    // MAPA CON CAPAS: Vamos a añadir capas al mapa con diferente info
+    require([
+      "esri/Map",
+      "esri/views/MapView",
+      "esri/layers/FeatureLayer"
+    ], function(Map, MapView, FeatureLayer) {
+      var map = new Map({
+        basemap: "topo-vector" // Topográfico: "topo-vector" "streets-navigation-vector"
+      });
+
+      var view = new MapView({
+        container: "viewDiv",
+        map: map,
+        center: [-118.71511,34.09042],
+        zoom: 11
+      });
+      // Inicio de senderos puntos rojos
+      var trailheadsLayer = new FeatureLayer({
+          url:
+            "https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Trailheads/FeatureServer/0"
+        });
+
+      map.add(trailheadsLayer);
+
+
+      // Trails feature layer (lines)
+      var trailsLayer = new FeatureLayer({
+        url: "https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Trails/FeatureServer/0",
+
+        // Con estas condiciones, estamos pintando solo las sendas con una elevación menor a 250, estas propiedades se pueden ver en la
+        // petición (URL de arriba)
+        definitionExpression: "ELEV_GAIN < 250",
+
+        // Estos caminos se pintarán de verde
+        renderer: {
+          type: "simple",
+          symbol: {
+            type: "simple-line",
+            color: "green",
+            width: "2px"
+          }
+        },
+
+        // PONER POPUPS
+        outFields: ["TRL_NAME", "ELEV_GAIN"],
+        popupTemplate: {
+          // Enable a popup
+          title: "{TRL_NAME}", // Show attribute value
+          content: "The trail elevation gain is {ELEV_GAIN} ft." // Display text in pop-up
+        }
+
+      });
+
+      map.add(trailsLayer, 0);
+
+      // Parks and open spaces (polygons)
+      var parksLayer = new FeatureLayer({
+        url:
+          "https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Parks_and_Open_Space/FeatureServer/0"
+      });
+
+      //map.add(parksLayer, 0); 
+      // Esta linea la he comentado para que se pueda ver la capa que pinta distintos los parques en función de la figura de protección
+
+      // Simbolos para el comienzo de las rutas
+      var trailheadsRenderer = {
+        type: "simple",
+        symbol: {
+          type: "picture-marker",
+          url: "http://static.arcgis.com/images/Symbols/NPS/npsPictograph_0231b.png",
+          width: "18px",
+          height: "18px"
+        }
+      };
+
+      // Nombre de las rutas encima de cada icono de inicio de ruta
+      var trailheadsLabels = {
+        symbol: {
+          type: "text",
+          color: "#FFFFFF",
+          haloColor: "#5E8D74",
+          haloSize: "2px",
+          font: {
+            size: "12px",
+            family: "Noto Sans",
+            style: "italic",
+            weight: "normal"
+          }
+        },
+        labelPlacement: "above-center",
+        labelExpressionInfo: {
+          expression: "$feature.TRL_NAME"
+        }
+      };
+
+      // Creamos una capa que 
+      var trailheads = new FeatureLayer({
+        url: "https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Trailheads/FeatureServer/0", // Coge los puntos de inicio de ruta
+        renderer: trailheadsRenderer, // Le pone el icono que hemos elegido
+        labelingInfo: [trailheadsLabels] // y el nombre de la ruta
+      });
+      // Es igual que donde hemos puesto los puntos de inicio de ruta (trailheadsLayer) pero ahora personalizado 
+      map.add(trailheads);
+
+      // PERSONALIZAMOS
+      // Igual que con los puntos, ahora personalizamos los senderos
+      // En este caso, pintaremos de morado los caminos con una elevación entre 0-2300 con una opacidad de 0,75
+      // Seguiremos viendo los primeros que hemos pintado de verde, esos solo nos mostraban los que tenían una elevación menor a 250
+      var trailsRenderer = {
+        type: "simple",
+        symbol: {
+          color: "#BA55D3", // morado
+          type: "simple-line",
+          style: "solid"
+        },
+        visualVariables: [
+          {
+            type: "size",
+            field: "ELEV_GAIN",
+            minDataValue: 0,
+            maxDataValue: 2300,
+            minSize: "3px",
+            maxSize: "7px"
+          }
+        ]
+      };
+
+      var trails = new FeatureLayer({
+        url: "https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Trails/FeatureServer/0",
+        renderer: trailsRenderer,
+        opacity: 0.75
+      });
+
+      map.add(trails, 0);
+
+      // SENDEROS APTOS PARA CICLISTAS
+
+      // Definimos cómo se van a ver las rutas aptas para bici, en este caso serán una línea blanca punteada
+      var bikeTrailsRenderer = {
+        type: "simple",
+        symbol: {
+          type: "simple-line",
+          style: "short-dot",
+          color: "#FFF",
+          width: "1px"
+        }
+      };
+
+      // Ponemos la condición para pintar esas rutas con la restricción a bicis
+      var bikeTrails = new FeatureLayer({
+        url: "https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Trails/FeatureServer/0",
+        renderer: bikeTrailsRenderer,
+        definitionExpression: "USE_BIKE = 'YES'"
+      });
+
+      map.add(bikeTrails, 1);
+
+      // Vamos a pintar los parques naturales de distinto color en función de su figura de protección
+
+      // Creamos una función que va a recibir el nombre de la figura y el color que hemos elegido para pintarlo
+      function createFillSymbol(value, color) {
+        return {
+          value: value,
+          symbol: {
+            color: color,
+            type: "simple-fill",
+            style: "solid",
+            outline: {
+              style: "none"
+            }
+          },
+          label: value
+        };
+      }
+
+      // Ejecutamos la función con los datos que queremos
+      var openSpacesRenderer = {
+        type: "unique-value",
+        field: "TYPE",
+        uniqueValueInfos: [
+          createFillSymbol("Natural Areas", "#9E559C"),
+          createFillSymbol("Regional Open Space", "#A7C636"),
+          createFillSymbol("Local Park", "#149ECE"),
+          createFillSymbol("Regional Recreation Park", "#ED5151")
+        ]
+      };
+
+      // Creamos la capa con nuestros estilos personalizados
+      var openspaces = new FeatureLayer({
+        url: "https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Parks_and_Open_Space/FeatureServer/0",
+        renderer: openSpacesRenderer,
+        opacity: 0.2
+      });
+
+      map.add(openspaces, 0); // Añadimos la capa al mapa
+    });
+  </script>
+</head>
+<body>
+  <div id="viewDiv"></div>
+</body>
+</html>
