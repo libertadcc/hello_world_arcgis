@@ -1,0 +1,83 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>ArcGIS API for JavaScript Hello World App</title>
+  <style>
+    html, body {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    };
+    
+    body {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-evenly;
+    }
+
+    #viewDiv, #viewDiv3D {
+      height: 500px;
+      width: 300px;
+    };
+
+    .titles {
+      margin: 20px;
+    }
+    
+  </style>
+
+  <link rel="stylesheet" href="https://js.arcgis.com/4.16/esri/css/main.css">
+  <script src="https://js.arcgis.com/4.16/"></script>
+
+  <script>
+    // MAPA 2D
+    require([
+      "esri/Map",
+      "esri/views/MapView",
+      "esri/views/SceneView"
+    ], function(Map, MapView, SceneView) {
+
+      var map = new Map({
+        basemap: "streets-navigation-vector"
+      });
+
+      var view = new MapView({
+        container: "viewDiv",
+        map: map,
+        center: [-118.71511,34.09042],
+        zoom: 11
+      });
+
+      var map3d = new Map({
+        basemap: "streets-navigation-vector",
+        ground: "world-elevation"
+      });
+
+      var view = new SceneView({
+        container: "viewDiv3D",
+        map: map3d,
+        camera: {
+          position: {
+            x: -118.808,
+            y: 33.961,
+            z: 25000 
+          },
+          tilt: 65
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+  <div>
+    <h2 class="titles">MAPA 2D</h2>
+    <div id="viewDiv"></div>
+  </div>
+  <div>
+    <h2 class="titles">MAPA 3D</h2>
+    <div id="viewDiv3D"></div>
+  </div>
+</body>
+</html>
