@@ -1,0 +1,148 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>ArcGIS API for JavaScript Hello World App</title>
+  <style>
+    html, body {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    };
+    
+    body {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-evenly;
+    }
+
+    #viewDiv, #viewDiv3D {
+      height: 80%;
+      width: 70%;
+    };
+
+    .titles {
+      margin: 20px;
+    }
+    
+  </style>
+
+  <link rel="stylesheet" href="https://js.arcgis.com/4.16/esri/css/main.css">
+  <script src="https://js.arcgis.com/4.16/"></script>
+
+  <script>
+  require([
+    "esri/Map",
+    "esri/views/SceneView",
+    "esri/Camera",
+    "esri/layers/FeatureLayer",
+    "esri/renderers/UniqueValueRenderer",
+    "esri/symbols/PointSymbol3D",
+    "esri/symbols/IconSymbol3DLayer",
+    "esri/widgets/Legend",
+    "dojo/domReady!"
+  ], function(Map, SceneView, Camera, FeatureLayer, UniqueValueRenderer, PointSymbol3D, IconSymbol3DLayer, Legend) {
+
+    var map = new Map({
+      basemap: "dark-gray",
+      ground: "world-elevation"
+    });
+
+    var view = new SceneView({
+      container: "viewDiv",
+      map: map,
+      // center: [-74.8, 39.6],
+      // zoom: 7
+      camera: new Camera({
+        position: [-74.5, 36.6, 229000],
+        heading: 328,
+        tilt: 50
+      })
+    });
+    
+    var cityRenderer = new UniqueValueRenderer({
+      field: "UNIVERSITY",
+      legendOptions: {
+        title: "College Town?"   
+      }
+    });
+
+    var addClass = function(val, renderer) {
+      var lbl, sym;
+      if (val == 1) {
+        lbl = "Yes";
+        sym = new PointSymbol3D({
+          symbolLayers: [
+            new IconSymbol3DLayer({
+              resource: { primitive: "cross" },
+              size: 8,
+              outline: {
+                color: "black",
+                size: 0.5
+              }
+            }),        
+            new IconSymbol3DLayer({
+              material: { color: "yellow" },
+              resource: { primitive: "circle" },
+              size: 12,
+              outline: {
+                color: "black",
+                size: 0.5
+              }
+            })
+          ]
+        });
+      } else {
+        lbl = "Yes";
+        sym = new PointSymbol3D({
+          symbolLayers: [new IconSymbol3DLayer({
+            material: { color: "lightgray" },
+            resource: { primitive: "circle" },
+            size: 12
+          })]
+        })
+      }
+      renderer.addUniqueValueInfo({
+        value: val,
+        symbol: sym,
+        label: lbl
+      });      
+    }
+    
+    addClass(1, cityRenderer);
+    addClass(0, cityRenderer);
+    
+    var cityLyr = new FeatureLayer({
+      portalItem: { 
+        id: "5af96a04ef4c4d8a9bb2a9dd2c883e36"
+      },
+      renderer: cityRenderer     
+    });  
+    
+    var cntyLyr = new FeatureLayer({
+      portalItem: {
+        id: "0875e77a2ff54dd689e169d7798d0905"
+      }
+    });    
+    
+    map.addMany([cntyLyr, cityLyr]);
+    
+    var legend = new Legend({
+      view: view,
+      layerInfos: [{
+        layer: cityLyr,
+        title: "Jen & Barry's World"
+      }]
+    });
+
+    view.ui.add(legend, "bottom-left");    
+  });
+  </script>
+</head>
+<body>
+  <div>
+    <div id="viewDiv"></div>
+  </div>
+</body>
+</html>
