@@ -33,110 +33,103 @@
 
   <script>
   require([
-    "esri/Map",
-    "esri/views/SceneView",
-    "esri/Camera",
-    "esri/layers/FeatureLayer",
-    "esri/renderers/UniqueValueRenderer",
-    "esri/symbols/PointSymbol3D",
-    "esri/symbols/IconSymbol3DLayer",
-    "esri/widgets/Legend",
-    "dojo/domReady!"
-  ], function(Map, SceneView, Camera, FeatureLayer, UniqueValueRenderer, PointSymbol3D, IconSymbol3DLayer, Legend) {
+  "esri/Map",
+  "esri/views/SceneView",
+  "esri/Camera",
+  "esri/layers/FeatureLayer",
+  "esri/renderers/UniqueValueRenderer",
+  "esri/symbols/PointSymbol3D",
+  "esri/symbols/IconSymbol3DLayer",
+  "esri/widgets/Legend",
+  "dojo/domReady!"
+], function(Map, SceneView, Camera, FeatureLayer, UniqueValueRenderer, PointSymbol3D, IconSymbol3DLayer, Legend) {
 
-    var map = new Map({
-      basemap: "dark-gray",
-      ground: "world-elevation"
-    });
+  var map = new Map({
+    basemap: "dark-gray",
+    ground: "world-elevation"
+  });
 
-    var view = new SceneView({
-      container: "viewDiv",
-      map: map,
-      // center: [-74.8, 39.6],
-      // zoom: 7
-      camera: new Camera({
-        position: [-74.5, 36.6, 229000],
-        heading: 328,
-        tilt: 50
-      })
-    });
-    
-    var cityRenderer = new UniqueValueRenderer({
-      field: "UNIVERSITY",
-      legendOptions: {
-        title: "College Town?"   
-      }
-    });
-
-    var addClass = function(val, renderer) {
-      var lbl, sym;
-      if (val == 1) {
-        lbl = "Yes";
-        sym = new PointSymbol3D({
-          symbolLayers: [
-            new IconSymbol3DLayer({
-              resource: { primitive: "cross" },
-              size: 8,
-              outline: {
-                color: "black",
-                size: 0.5
-              }
-            }),        
-            new IconSymbol3DLayer({
-              material: { color: "yellow" },
-              resource: { primitive: "circle" },
-              size: 12,
-              outline: {
-                color: "black",
-                size: 0.5
-              }
-            })
-          ]
-        });
-      } else {
-        lbl = "Yes";
-        sym = new PointSymbol3D({
-          symbolLayers: [new IconSymbol3DLayer({
-            material: { color: "lightgray" },
-            resource: { primitive: "circle" },
-            size: 12
-          })]
-        })
-      }
-      renderer.addUniqueValueInfo({
-        value: val,
-        symbol: sym,
-        label: lbl
-      });      
+  var view = new SceneView({
+    container: "viewDiv",
+    map: map,
+    camera: new Camera({
+      position: [-74.5, 36.6, 229000],
+      heading: 328,
+      tilt: 64
+    })
+  });
+  
+  var cityRenderer = new UniqueValueRenderer({
+    field: "UNIVERSITY",
+    legendOptions: {
+      title: "College Town?"   
     }
-    
-    addClass(1, cityRenderer);
-    addClass(0, cityRenderer);
-    
-    var cityLyr = new FeatureLayer({
-      portalItem: { 
-        id: "5af96a04ef4c4d8a9bb2a9dd2c883e36"
-      },
-      renderer: cityRenderer     
-    });  
-    
-    var cntyLyr = new FeatureLayer({
-      portalItem: {
-        id: "0875e77a2ff54dd689e169d7798d0905"
-      }
-    });    
-    
-    map.addMany([cntyLyr, cityLyr]);
-    
-    var legend = new Legend({
-      view: view,
-      layerInfos: [{
-        layer: cityLyr,
-        title: "Jen & Barry's World"
-      }]
-    });
+  });
 
-    view.ui.add(legend, "bottom-left");    
+  var addClass = function(val, renderer) {
+    var lbl, sym;
+    if (val == 1) {
+      lbl = "Yes";
+      sym = new PointSymbol3D({
+        symbolLayers: [
+          new IconSymbol3DLayer({
+            material: { color: [235, 244, 66, 0.7] },
+            resource: { primitive: "circle" },
+            size: 12,
+            outline: {
+              color: "black",
+              size: 0.5
+            }
+          }),
+          new IconSymbol3DLayer({
+            resource: { primitive: "cross" },
+            size: 8,
+            outline: {
+              color: "black",
+              size: 0.5
+            }
+          })
+        ]
+      });
+    } else {
+      lbl = "No";
+      sym = new PointSymbol3D({
+        symbolLayers: [new IconSymbol3DLayer({
+          material: { color: "gray" },
+          resource: { primitive: "circle" },
+          size: 12
+        })]
+      })
+    }
+    renderer.addUniqueValueInfo({
+      value: val,
+      symbol: sym,
+      label: lbl
+    });      
+  }
+  
+  addClass(1, cityRenderer);
+  addClass(0, cityRenderer);
+   
+  var cityLyr = new FeatureLayer({
+    portalItem: { 
+      id: "5af96a04ef4c4d8a9bb2a9dd2c883e36"
+    },
+    renderer: cityRenderer     
+  });  
+  
+  map.add(cityLyr)
+  
+  var legend = new Legend({
+    view: view,
+    layerInfos: [{
+      layer: cityLyr,
+      title: "Jen & Barry's World"
+    }]
+  });
+
+  view.ui.add(legend, "bottom-left");  
+      
   });
   </script>
 </head>
