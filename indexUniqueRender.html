@@ -60,7 +60,7 @@
   });
   
   var cityRenderer = new UniqueValueRenderer({
-    field: "UNIVERSITY",
+    field: "UNIVERSITY", // Campo por el que vamos a diferenciar
     legendOptions: {
       title: "College Town?"   
     }
@@ -68,9 +68,9 @@
 
   var addClass = function(val, renderer) {
     var lbl, sym;
-    if (val == 1) {
+    if (val === 1) {
       lbl = "Yes";
-      sym = new PointSymbol3D({
+      sym = new PointSymbol3D({ // Símbolo para las ciudades CON 
         symbolLayers: [
           new IconSymbol3DLayer({
             material: { color: [235, 244, 66, 0.7] },
@@ -93,7 +93,7 @@
       });
     } else {
       lbl = "No";
-      sym = new PointSymbol3D({
+      sym = new PointSymbol3D({ // Símbolo para las ciudades SIN universidad
         symbolLayers: [new IconSymbol3DLayer({
           material: { color: "gray" },
           resource: { primitive: "circle" },
@@ -101,9 +101,9 @@
         })]
       })
     }
-    renderer.addUniqueValueInfo({
+    renderer.addUniqueValueInfo({ // Según el valor (val) añade el símbolo
       value: val,
-      symbol: sym,
+      symbol: sym, 
       label: lbl
     });      
   }
@@ -111,7 +111,7 @@
   addClass(1, cityRenderer);
   addClass(0, cityRenderer);
    
-  var cityLyr = new FeatureLayer({
+  var cityLyr = new FeatureLayer({ // Capa con la información
     portalItem: { 
       id: "5af96a04ef4c4d8a9bb2a9dd2c883e36"
     },

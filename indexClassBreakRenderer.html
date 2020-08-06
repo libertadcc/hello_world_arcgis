@@ -59,13 +59,13 @@
   });
   
   var countyRenderer = new ClassBreaksRenderer({
-    field: "POP_SQMILE"
+    field: "POP_SQMILE" // Campo sobre el que aplicaremos el rango
   });
 
-  countyRenderer.addClassBreakInfo({
+  countyRenderer.addClassBreakInfo({ // Sobre esta clase aplicaremos cada rango
     minValue: 0,
     maxValue: 50,
-    symbol: new PolygonSymbol3D({
+    symbol: new PolygonSymbol3D({ // Definición del color de este rango
       symbolLayers: [new FillSymbol3DLayer({
         material: { color: "#eff3ff" },
         outline: {
@@ -119,8 +119,8 @@
   });
 
   countyRenderer.addClassBreakInfo({
-    minValue: 500,
-    maxValue: 1000,
+    minValue: 500, // Valor mínimo
+    maxValue: 1000, // Valor máximo del rango
     symbol: new PolygonSymbol3D({
       symbolLayers: [new FillSymbol3DLayer({
         material: { color: "#08519c" },
@@ -139,7 +139,7 @@
     renderer: countyRenderer      
   });  
   
-  map.add(countyLyr)
+  map.add(countyLyr);
   
 });
   </script>
